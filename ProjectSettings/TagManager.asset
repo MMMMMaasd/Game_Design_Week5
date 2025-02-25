@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Map
   - Enemy
+  - Animal
   layers:
   - Default
   - TransparentFX
@@ -42,6 +43,12 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Animals
+    uniqueID: 2563136323
+    locked: 0
+  - name: Tiles
+    uniqueID: 1366471841
     locked: 0
   m_RenderingLayers:
   - Default

@@ -108,6 +108,7 @@ public class AnimalSpawner : MonoBehaviour
 
         // Spawn a single animal at the given position
         GameObject animalPrefab = animalPrefabs[Random.Range(0, animalPrefabs.Length)];
-        Instantiate(animalPrefab, position, Quaternion.identity);
+        GameObject animal = Instantiate(animalPrefab, position, Quaternion.identity);
+        animal.tag = "Animal";
     }
 }

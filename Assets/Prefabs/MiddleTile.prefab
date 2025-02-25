@@ -100,6 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1034ba73480cceb4aa28699182173842, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  zoneType: 1
   upNeighbours:
   - {fileID: -8079001343046044640}
   - {fileID: -4178983190707876891, guid: cacc0a05051cb0b44a4c9b7b8383b04c, type: 3}

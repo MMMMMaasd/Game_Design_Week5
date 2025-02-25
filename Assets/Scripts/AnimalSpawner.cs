@@ -21,13 +21,10 @@ public class AnimalSpawner : MonoBehaviour
         WaveFunction.OnMapGenerationComplete -= SpawnAnimals;
     }
 
-    void Start()
-    {
-        SpawnAnimals();
-    }
-
     void SpawnAnimals()
     {
+        Debug.Log("Spawning animals!");
+
         // Shuffle the grid components to randomize spawning order
         List<Cell> shuffledGrid = new List<Cell>(waveFunction.gridComponents);
         ShuffleList(shuffledGrid);
@@ -36,47 +33,60 @@ public class AnimalSpawner : MonoBehaviour
         int middleCount = 0;
         int abyssCount = 0;
 
+        // Store positions that have already been used for spawning to prevent duplicates
+        List<Vector2> usedPositions = new List<Vector2>();
+
         foreach (Cell cell in shuffledGrid)
         {
-            Debug.Log(cell.tileOptions[0].zoneType);
-            if (cell.collapsed)
+            if (cell.collapsed) // Ensure we only spawn animals in collapsed cells
             {
-                Tile tile = cell.tileOptions[0];
+                // Skip if the animal limit for the zone is reached or the position has already been used
+                if (usedPositions.Contains(cell.transform.position)) continue;
+
                 Vector2 spawnPosition = cell.transform.position;
 
-                // Spawn animals only if the tile is in the correct zone and the limit is not reached
-                switch (tile.zoneType)
+                // Spawn animals only if the cell is in the correct zone and the limit is not reached
+                switch (cell.zoneType)
                 {
                     case ZoneType.Daylight:
-                        if (daylightAnimals.Length > 0 && daylightCount < animalsPerZone)
+                        if (daylightCount < animalsPerZone)
                         {
-                            Debug.Log("D");
+                            Debug.Log($"Spawning Daylight animal at ({spawnPosition.x}, {spawnPosition.y})");
                             SpawnAnimal(daylightAnimals, spawnPosition);
                             daylightCount++;
+                            usedPositions.Add(spawnPosition);
                         }
                         break;
+
                     case ZoneType.Middle:
-                        if (middleAnimals.Length > 0 && middleCount < animalsPerZone)
+                        if (middleCount < animalsPerZone)
                         {
-                            Debug.Log("M");
+                            Debug.Log($"Spawning Middle animal at ({spawnPosition.x}, {spawnPosition.y})");
                             SpawnAnimal(middleAnimals, spawnPosition);
                             middleCount++;
+                            usedPositions.Add(spawnPosition);
                         }
                         break;
+
                     case ZoneType.Abyss:
-                        if (abyssAnimals.Length > 0 && abyssCount < animalsPerZone)
+                        if (abyssCount < animalsPerZone)
                         {
-                            Debug.Log("A");
+                            Debug.Log($"Spawning Abyss animal at ({spawnPosition.x}, {spawnPosition.y})");
                             SpawnAnimal(abyssAnimals, spawnPosition);
                             abyssCount++;
+                            usedPositions.Add(spawnPosition);
                         }
                         break;
                 }
+
+                // Stop spawning once the animal limit per zone is reached
+                if (daylightCount >= animalsPerZone && middleCount >= animalsPerZone && abyssCount >= animalsPerZone)
+                    break;
             }
         }
     }
 
-    // Fisher-Yates shuffle algorithm
+    // Fisher-Yates shuffle algorithm to randomize the list
     void ShuffleList<T>(List<T> list)
     {
         System.Random rng = new System.Random();
@@ -91,14 +101,13 @@ public class AnimalSpawner : MonoBehaviour
         }
     }
 
+    // Instantiate a single animal in the specified position
     void SpawnAnimal(GameObject[] animalPrefabs, Vector2 position)
     {
         if (animalPrefabs.Length == 0) return;
 
-        for (int i = 0; i < animalsPerZone; i++)
-        {
-            GameObject animalPrefab = animalPrefabs[Random.Range(0, animalPrefabs.Length)];
-            Instantiate(animalPrefab, position, Quaternion.identity);
-        }
+        // Spawn a single animal at the given position
+        GameObject animalPrefab = animalPrefabs[Random.Range(0, animalPrefabs.Length)];
+        Instantiate(animalPrefab, position, Quaternion.identity);
     }
 }

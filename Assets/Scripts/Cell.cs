@@ -1,10 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
-public class Cell: MonoBehaviour
+
+
+public class Cell : MonoBehaviour
 {
     public bool collapsed;
     public Tile[] tileOptions;
+    public ZoneType zoneType;
 
     public void CreateCell(bool collapseState, Tile[] tiles)
     {
@@ -17,3 +20,4 @@ public class Cell: MonoBehaviour
         tileOptions = tiles;
     }
 }
+

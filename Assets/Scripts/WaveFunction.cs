@@ -74,19 +74,9 @@ public class WaveFunction : MonoBehaviour
 
         Cell cellToCollapse = tempGrid[randIndex];
 
-        Debug.Log($"Collapsing cell at ({cellToCollapse.transform.position.x}, {cellToCollapse.transform.position.y})");
-        Debug.Log($"Initial tile options: {cellToCollapse.tileOptions.Length}");
-
-        foreach (Tile tile in cellToCollapse.tileOptions)
-        {
-            Debug.Log($"Tile option: {tile.name}, Zone: {tile.zoneType}");
-        }
-
         cellToCollapse.collapsed = true;
         Tile selectedTile = cellToCollapse.tileOptions[UnityEngine.Random.Range(0, cellToCollapse.tileOptions.Length)];
         cellToCollapse.tileOptions = new Tile[] { selectedTile };
-
-        Debug.Log($"Collapsed tile at ({cellToCollapse.transform.position.x}, {cellToCollapse.transform.position.y}) with zone: {selectedTile.zoneType}");
 
         Tile foundTile = cellToCollapse.tileOptions[0];
         Instantiate(foundTile, cellToCollapse.transform.position, Quaternion.identity);
@@ -225,20 +215,24 @@ public class WaveFunction : MonoBehaviour
                 {
                     if (y < dimensions / 3) // Top third of the map
                     {
-                        cell.tileOptions[0].zoneType = ZoneType.Daylight;
+                        cell.zoneType = ZoneType.Abyss;
+                        Debug.Log($"Tile at ({x}, {y}) assigned to Daylight");
                     }
                     else if (y < 2 * dimensions / 3) // Middle third
                     {
-                        cell.tileOptions[0].zoneType = ZoneType.Middle;
+                        cell.zoneType = ZoneType.Middle;
+                        Debug.Log($"Tile at ({x}, {y}) assigned to Middle");
                     }
                     else // Bottom third
                     {
-                        cell.tileOptions[0].zoneType = ZoneType.Abyss;
+                        cell.zoneType = ZoneType.Daylight;
+                        Debug.Log($"Tile at ({x}, {y}) assigned to Abyss");
                     }
                 }
             }
         }
     }
+
 
     void CheckValidity(List<Tile> optionList, List<Tile> validOption)
     {

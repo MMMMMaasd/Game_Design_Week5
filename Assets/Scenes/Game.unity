@@ -309,6 +309,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b438a000d3a294bcfa831d912bf6d5c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  growthFactor: 0.1
+  animalTag: Animal
+  canvas: {fileID: 0}
 --- !u!1 &1332792773
 GameObject:
   m_ObjectHideFlags: 0
@@ -447,23 +450,6 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
---- !u!114 &1332792778
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1332792773}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 130d4243e513c9c4e9c95e4ca8ab043f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 117428484}
-  offset: {x: 0, y: 0, z: -10}
-  zoomLevel: 2
-  minBounds: {x: 0, y: 0}
-  maxBounds: {x: 25, y: 25}
 --- !u!1 &1848198184
 GameObject:
   m_ObjectHideFlags: 0

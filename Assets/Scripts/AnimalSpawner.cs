@@ -1,6 +1,7 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using Unity.Hierarchy;
 
 public class AnimalSpawner : MonoBehaviour
 {
@@ -8,85 +9,88 @@ public class AnimalSpawner : MonoBehaviour
     public GameObject[] daylightAnimals;
     public GameObject[] middleAnimals;
     public GameObject[] abyssAnimals;
-
+    private float scalingOverTime = 0.0f;
     public int animalsPerZone = 5;
+    public float spawnInterval = 10f; // Set the interval to 10 seconds
 
-    void OnEnable()
+    private void Update()
     {
-        WaveFunction.OnMapGenerationComplete += SpawnAnimals;
+        scalingOverTime += Time.deltaTime;
+    }
+    private void OnEnable()
+    {
+        WaveFunction.OnMapGenerationComplete += StartSpawningAnimals;
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
-        WaveFunction.OnMapGenerationComplete -= SpawnAnimals;
+        WaveFunction.OnMapGenerationComplete -= StartSpawningAnimals;
+        StopAllCoroutines();
+    }
+
+    void StartSpawningAnimals()
+    {
+        scalingOverTime = 0.0f;
+        StartCoroutine(SpawnAnimalsRepeatedly());
+    }
+
+    IEnumerator SpawnAnimalsRepeatedly()
+    {
+        while (true)
+        {
+            SpawnAnimals();
+            yield return new WaitForSeconds(spawnInterval); // Wait 10 seconds before spawning again
+        }
     }
 
     void SpawnAnimals()
     {
         Debug.Log("Spawning animals!");
 
-        // Shuffle the grid components to randomize spawning order
         List<Cell> shuffledGrid = new List<Cell>(waveFunction.gridComponents);
         ShuffleList(shuffledGrid);
 
-        int daylightCount = 0;
-        int middleCount = 0;
-        int abyssCount = 0;
-
-        // Store positions that have already been used for spawning to prevent duplicates
+        int daylightCount = 0, middleCount = 0, abyssCount = 0;
         List<Vector2> usedPositions = new List<Vector2>();
 
         foreach (Cell cell in shuffledGrid)
         {
-            if (cell.collapsed) // Ensure we only spawn animals in collapsed cells
+            if (cell.collapsed && !usedPositions.Contains(cell.transform.position))
             {
-                // Skip if the animal limit for the zone is reached or the position has already been used
-                if (usedPositions.Contains(cell.transform.position)) continue;
-
                 Vector2 spawnPosition = cell.transform.position;
 
-                // Spawn animals only if the cell is in the correct zone and the limit is not reached
                 switch (cell.zoneType)
                 {
                     case ZoneType.Daylight:
                         if (daylightCount < animalsPerZone)
                         {
-                            Debug.Log($"Spawning Daylight animal at ({spawnPosition.x}, {spawnPosition.y})");
                             SpawnAnimal(daylightAnimals, spawnPosition);
                             daylightCount++;
-                            usedPositions.Add(spawnPosition);
                         }
                         break;
-
                     case ZoneType.Middle:
                         if (middleCount < animalsPerZone)
                         {
-                            Debug.Log($"Spawning Middle animal at ({spawnPosition.x}, {spawnPosition.y})");
                             SpawnAnimal(middleAnimals, spawnPosition);
                             middleCount++;
-                            usedPositions.Add(spawnPosition);
                         }
                         break;
-
                     case ZoneType.Abyss:
                         if (abyssCount < animalsPerZone)
                         {
-                            Debug.Log($"Spawning Abyss animal at ({spawnPosition.x}, {spawnPosition.y})");
                             SpawnAnimal(abyssAnimals, spawnPosition);
                             abyssCount++;
-                            usedPositions.Add(spawnPosition);
                         }
                         break;
                 }
 
-                // Stop spawning once the animal limit per zone is reached
+                usedPositions.Add(spawnPosition);
                 if (daylightCount >= animalsPerZone && middleCount >= animalsPerZone && abyssCount >= animalsPerZone)
                     break;
             }
         }
     }
 
-    // Fisher-Yates shuffle algorithm to randomize the list
     void ShuffleList<T>(List<T> list)
     {
         System.Random rng = new System.Random();
@@ -95,20 +99,15 @@ public class AnimalSpawner : MonoBehaviour
         {
             n--;
             int k = rng.Next(n + 1);
-            T value = list[k];
-            list[k] = list[n];
-            list[n] = value;
+            (list[k], list[n]) = (list[n], list[k]);
         }
     }
 
-    // Instantiate a single animal in the specified position
     void SpawnAnimal(GameObject[] animalPrefabs, Vector2 position)
     {
         if (animalPrefabs.Length == 0) return;
-
-        // Spawn a single animal at the given position
         GameObject animalPrefab = animalPrefabs[Random.Range(0, animalPrefabs.Length)];
-        GameObject animal = Instantiate(animalPrefab, position, Quaternion.identity);
-        animal.tag = "Animal";
+        Instantiate(animalPrefab, position, Quaternion.identity).tag = "Animal";
+        animalPrefab.transform.localScale = Vector3.one * (1f+scalingOverTime/25); // Increases scale based on time passed (adjust as needed)
     }
 }
